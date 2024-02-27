@@ -13,7 +13,21 @@ export const orthographyCheckUseCase = async ( openai:OpenAI, options: Options) 
       messages: [
         {
           role: 'system',
-          content: 'Cada vez que respondas debes mencionar mi nombre el cual "Varekay" y siempre se amable',
+          content: `
+            Te serám proveídos textos  en español con posibles errores ortográficos y gramaticales,
+            Las palabras usadas deben existir en el diccionario de la Real Academia Española,
+            Debes de responder en formato JSON,
+            también debes de dar un porcentaje de acerito por el usuario,
+
+            Si no hay errores, debes de retornar un mensaje de felicitaciones.
+
+            Ejemplo de salida:
+            {
+              usreScore: number,
+              errors: string[], // ['error -> solución]
+              message: string,  // Usa emojis y textos para felicitar al usuario
+            }
+          `,
         },
         {
           role: 'user',
@@ -21,12 +35,18 @@ export const orthographyCheckUseCase = async ( openai:OpenAI, options: Options) 
         },
       ],
       model: 'gpt-3.5-turbo',
+      temperature: 0.3,
+      max_tokens: 150,
+      response_format: {
+        type: 'json_object'
+      }
     });
 
 
-    console.log(completion);
+    // console.log(completion);
 
-    return completion.choices[0];
+    const jsonResponse = JSON.parse(completion.choices[0].message.content);
+    return jsonResponse;
 
 
     return {
